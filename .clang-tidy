@@ -1,0 +1,31 @@
+---
+# Force Clang to parse C files strictly as C (prevents C++ static_cast suggestions)
+ExtraArgsBefore:
+  - "-x"
+  - "c"
+  - "-std=gnu11"
+
+# Strip incompatible Xtensa/RISC-V GCC arguments
+ExtraArgs:
+  - "-Qunused-arguments"
+  - "-Wno-unknown-warning-option"
+  - "--target=x86_64-pc-linux-gnu"
+
+# Only show header warnings if the header lives in main/
+HeaderFilterRegex: '.*main/.*'
+
+# Enable checks, explicitly disabling C++-centric bool conversion check
+Checks: >
+  bugprone-*,
+  clang-analyzer-*,
+  readability-*,
+  performance-*,
+  -readability-implicit-bool-conversion,
+  -readability-magic-numbers
+
+# Configuration Options
+CheckOptions:
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: 'true'
+  - key: readability-implicit-bool-conversion.AllowIntegerConversions
+    value: 'true'

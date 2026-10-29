@@ -1,0 +1,32 @@
+BasedOnStyle: LLVM  # or Google / Mozilla
+IndentWidth: 4
+ColumnLimit: 120
+UseTab: Never
+
+# The magic settings for your one-liners:
+AllowShortBlocksOnASingleLine: Always
+AllowShortIfStatementsOnASingleLine: WithoutElse
+
+# 1. Bracket & Style Placement
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: Inline
+
+# 2. Alignment & Whitespace Tricks
+# Aligns values on the = sign.
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: false
+AlignTrailingComments: true
+
+# 3. Function & Parameter Wrapping
+AlignAfterOpenBracket: Align
+BinPackParameters: false
+
+# 4. Struct & Array Initializer Layout
+Cpp11BracedListStyle: true
+
+# 5. Pointer & Reference Alignment
+# This is where the * resides. Gemini likes left.
+# PointerAlignment: Left
+
+# 6. Include Sorting
+SortIncludes: Never

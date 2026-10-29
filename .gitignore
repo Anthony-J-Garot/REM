@@ -1,0 +1,24 @@
+# Build artifacts
+#/build/
+build/
+/components/
+_archive/
+
+# Created by menuconfig, this stores plaintext Wi-Fi credentials.
+sdkconfig
+sdkconfig.old
+sdkconfig.temp
+
+# secrets
+main/secrets.h
+
+# Private keys, certificates, or local secrets (if added later)
+*.pem
+*.key
+*.crt
+!main/mosquitto.org.crt
+
+# Cache & Ninja/CMake temporary files
+CMakeCache.txt
+CMakeFiles/
+
