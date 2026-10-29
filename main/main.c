@@ -37,17 +37,24 @@ void override_epaper_refresh(void) {
     }
 }
 
+#define ENABLE_EPAPER_UART_EXPORT 1
 void epaper_refresh(float temp_f, float pressure_inhg, float humidity, float dew_pt_h) {
 	ESP_LOGI(TAG, "Refreshing e-paper display from console trigger...");
 
 	// Clear buffer to white
 	epaper_clear_framebuffers(EPAPER_COLOR_WHITE);
 
+	// Draw the whole layout
 	display_formatter_draw(temp_f, pressure_inhg, humidity, dew_pt_h);
 
-	// Push updates to hardware via SPI
+#if ENABLE_EPAPER_UART_EXPORT
+	// Export over UART without touching the physical e-paper panel
+	epaper_export_bw_framebuffer_uart();
+#else
+	// Normal refresh pushes updates to hardware via SPI
 	epaper_display_refresh();
 	ESP_LOGI(TAG, "E-paper refresh complete.");
+#endif
 }
 
 void app_main(void)

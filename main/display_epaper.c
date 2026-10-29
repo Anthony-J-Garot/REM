@@ -364,3 +364,49 @@ void epaper_display_refresh(void)
 }
 // }}}
 
+// {{{ epaper_export_bw_framebuffer_uart()
+void epaper_export_bw_framebuffer_uart(void)
+{
+    // Print recognizable header with format, dimensions, and row-order convention
+    printf("FRAMEBUFFER 296 128 XOR8 ROW_MAJOR_TOP_DOWN\n");
+
+    for (int y = 0; y < EPAPER_HEIGHT; y++) {
+        uint8_t row_bytes[37];
+        memset(row_bytes, 0, sizeof(row_bytes));
+
+        for (int x = 0; x < EPAPER_WIDTH; x++) {
+            // Reverse engineer the coordinate mapping used in epaper_draw_pixel()
+            int rotated_x = y;
+            int rotated_y = EPAPER_WIDTH - 1 - x;
+
+            int addr = (rotated_x / 8) + (rotated_y * (EPAPER_HEIGHT / 8));
+            int bit_idx = 7 - (rotated_x % 8);
+
+            // bw_buffer: 0 = black, 1 = white
+            if (addr >= 0 && addr < EPAPER_BUFFER_SIZE) {
+                if (bw_buffer[addr] & (1 << bit_idx)) {
+                    row_bytes[x / 8] |= (1 << (7 - (x % 8)));
+                }
+            }
+        }
+
+        // Calculate 8-bit XOR checksum over the 37 decoded bytes
+        uint8_t checksum = 0;
+        for (int i = 0; i < 37; i++) {
+            checksum ^= row_bytes[i];
+        }
+
+        // Output format: CC:HHHHHHHH... (74 hex characters for 37 bytes)
+        printf("%02X:", checksum);
+        for (int i = 0; i < 37; i++) {
+            printf("%02X", row_bytes[i]);
+        }
+        printf("\n");
+    }
+
+    // Explicit end marker
+    printf("END FRAMEBUFFER\n");
+    fflush(stdout);
+}
+// }}}
+
