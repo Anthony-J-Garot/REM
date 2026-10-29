@@ -25,16 +25,21 @@ void display_formatter_draw(float temp_f, float pressure_inhg, float humidity, f
     char pressure_str[32];
     char dew_point_str[32];
 
+	const char *GLYPH_THERMOMETER_MERCURY = "\x1C";
+	const char GLYPH_THERMOMETER_EMPTY = '\x1D';
+	const char GLYPH_DEGREES = '\x1F';
+
     // Build the values
-    snprintf(temperature_str, sizeof(temperature_str), "%c %.1f%cF", '\x1E', temp_f, '\x1F');
+    snprintf(temperature_str, sizeof(temperature_str), "%c %.1f%cF", GLYPH_THERMOMETER_EMPTY, temp_f, GLYPH_DEGREES);
     snprintf(humidity_str, sizeof(humidity_str),       "%.1f %%", humidity);
     snprintf(pressure_str, sizeof(pressure_str),       "%.0f inHg", pressure_inhg);
-    snprintf(dew_point_str, sizeof(dew_point_str),     "%.1f%cF", dew_pt_h, '\x1F');
+    snprintf(dew_point_str, sizeof(dew_point_str),     "%.1f%cF", dew_pt_h, GLYPH_DEGREES);
 
 	int x_indent = 0;
 
     // Temperature shows in a large 20x32 font
     epaper_draw_string(LEFT_MARGIN, 10, temperature_str, &font_20x32, EPAPER_COLOR_BLACK);
+    epaper_draw_string(LEFT_MARGIN, 10, GLYPH_THERMOMETER_MERCURY, &font_20x32, EPAPER_COLOR_RED);
 
     // Humidity
     epaper_draw_string(LEFT_MARGIN, 50 + FONT_8X8_Y_OFFSET, label_humidity_str, &font_8x8, EPAPER_COLOR_BLACK);
