@@ -12,6 +12,7 @@
 void display_formatter_draw(float temp_f, float pressure_inhg, float humidity, float dew_pt_h)
 {
     const int LEFT_MARGIN = 10;
+	const int FONT_8X8_Y_OFFSET = 4;
 
     // Labels. It's best to include the space at the end for proper sizing.
     const char *label_humidity_str = "Humidity: ";
@@ -36,17 +37,17 @@ void display_formatter_draw(float temp_f, float pressure_inhg, float humidity, f
     epaper_draw_string(LEFT_MARGIN, 10, temperature_str, &font_20x32, EPAPER_COLOR_BLACK);
 
     // Humidity
-    epaper_draw_string(LEFT_MARGIN, 50, label_humidity_str, &font_8x8, EPAPER_COLOR_BLACK);
+    epaper_draw_string(LEFT_MARGIN, 50 + FONT_8X8_Y_OFFSET, label_humidity_str, &font_8x8, EPAPER_COLOR_BLACK);
 	x_indent = strlen(label_humidity_str) * font_8x8.width;
     epaper_draw_string(LEFT_MARGIN + x_indent, 50, humidity_str, &font_8x16, EPAPER_COLOR_BLACK);
 
     // Pressure
-    epaper_draw_string(LEFT_MARGIN, 70, label_pressure_str, &font_8x8, EPAPER_COLOR_BLACK);
+    epaper_draw_string(LEFT_MARGIN, 70 + FONT_8X8_Y_OFFSET, label_pressure_str, &font_8x8, EPAPER_COLOR_BLACK);
 	x_indent = strlen(label_pressure_str) * font_8x8.width;
     epaper_draw_string(LEFT_MARGIN + x_indent, 70, pressure_str, &font_8x16, EPAPER_COLOR_BLACK);
 
     // Dew Point
-    epaper_draw_string(LEFT_MARGIN, 90, label_dew_point_str, &font_8x8, EPAPER_COLOR_BLACK);
+    epaper_draw_string(LEFT_MARGIN, 90 + FONT_8X8_Y_OFFSET, label_dew_point_str, &font_8x8, EPAPER_COLOR_BLACK);
 	x_indent = strlen(label_dew_point_str) * font_8x8.width;
     epaper_draw_string(LEFT_MARGIN + x_indent, 90, dew_point_str, &font_8x16, EPAPER_COLOR_BLACK);
 }
