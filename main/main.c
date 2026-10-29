@@ -15,6 +15,9 @@
 
 static const char *TAG = "main";
 
+// Dumps a visual display
+#define ENABLE_EPAPER_UART_EXPORT 1
+
 /*
  * The manufacturer recommends 180 seconds minimum between display refreshes.
  * Don't recompile & flash too quickly. 180 seconds is 180 seconds. You 
@@ -37,7 +40,6 @@ void override_epaper_refresh(void) {
     }
 }
 
-#define ENABLE_EPAPER_UART_EXPORT 1
 void epaper_refresh(float temp_f, float pressure_inhg, float humidity, float dew_pt_h) {
 	ESP_LOGI(TAG, "Refreshing e-paper display from console trigger...");
 
@@ -49,7 +51,8 @@ void epaper_refresh(float temp_f, float pressure_inhg, float humidity, float dew
 
 #if ENABLE_EPAPER_UART_EXPORT
 	// Export over UART without touching the physical e-paper panel
-	epaper_export_bw_framebuffer_uart();
+	epaper_export_bw_framebuffer_uart();	// Export Black Plane
+	epaper_export_red_framebuffer_uart();	// Export Red Plane right after
 #else
 	// Normal refresh pushes updates to hardware via SPI
 	epaper_display_refresh();
@@ -143,6 +146,12 @@ void app_main(void)
 		float temp_f = c_to_f((float)comp_data.temperature);
 		float pressure_inhg = hpa_to_inhg((float) comp_data.pressure / 100.0F);
 		float dew_pt_h = c_to_f(calculate_dew_point((float) comp_data.temperature, (float) comp_data.humidity));
+
+#if ENABLE_EPAPER_UART_EXPORT
+        epaper_refresh(temp_f, pressure_inhg, (float) comp_data.humidity, dew_pt_h);
+		vTaskSuspend(NULL);
+		ESP_LOGI(TAG, "Not resuming execution");
+#endif
 
 		// Log to serial every few seconds for semi-live diagnostics.
 		// Don't hit every second or the console input won't work.

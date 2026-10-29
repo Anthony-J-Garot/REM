@@ -33,6 +33,7 @@ void epaper_draw_glyph(int pixel_x, int pixel_y, const epaper_glyph_t *glyph, ep
 // Refresh routine to push buffers to the panel
 void epaper_display_refresh(void);
 
-// Framebuffer export API for PC inspection over UART
+// Framebuffer export APIs for PC inspection over UART
 void epaper_export_bw_framebuffer_uart(void);
+void epaper_export_red_framebuffer_uart(void);
 
