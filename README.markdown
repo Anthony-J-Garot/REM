@@ -1,39 +1,172 @@
-# REM - Room Environmental Monitor
+# REM — Room Environmental Monitor
 
-Starts a FreeRTOS task to get environmental data.
+A standalone, low-power environmental monitoring project built around the ESP32-H2, Bosch BME280 sensor, and a 2.9-inch three-color e-paper display.
 
+REM measures and displays temperature, relative humidity, atmospheric pressure, and calculated dew point. It is designed as a self-contained embedded device, with an emphasis on reliable operation, efficient hardware utilization, and clear presentation of environmental data.
 
-## Example folder contents
+## Project Overview
 
-The project **hello_world** contains one source file in C language [hello_world_main.c](main/hello_world_main.c). The file is located in folder [main](main).
+REM is an embedded engineering project developed using native ESP-IDF and C. It combines environmental sensing, sensor data processing, custom display rendering, and low-level hardware integration into a standalone device.
 
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt` files that provide set of directives and instructions describing the project's source files and targets (executable, library, or both).
+The project explores many important facets of an embedded engineering project, including:
 
-Below is short explanation of remaining files in the project folder.
+- Microcontroller programming using native ESP-IDF.
+- Modular embedded C architecture.
+- I²C communication and environmental sensor integration.
+- SPI communication and e-paper display control.
+- Custom bitmap fonts and graphics rendering.
+- Temperature, humidity, pressure, and dew point calculations.
+- Hardware initialization, error handling, and diagnostic output.
+- Unit testing of hardware-independent functionality.
+- Hardware documentation and reproducible build configuration.
 
-```
-├── CMakeLists.txt
-├── pytest_hello_world.py      Python script used for automated testing
-├── main
-│   ├── CMakeLists.txt
-│   └── hello_world_main.c
-└── README.md                  This is the file you are currently reading
-```
+The goal is not simply to display sensor readings, but to develop a complete, understandable, and reproducible embedded system.
 
-For more information on structure and contents of ESP-IDF projects, please refer to Section [Build System](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-system.html) of the ESP-IDF Programming Guide.
+## Hardware
 
-## Troubleshooting
+The current implementation uses the following components:
 
-* Program upload failure
+| Component | Description |
+|---|---|
+| Microcontroller | ESP32-H2 Super Mini |
+| Environmental sensor | Bosch BME280 |
+| Display | 2.9-inch, 296 × 128, three-color e-paper |
+| Display controller | SSD1680 |
+| Development framework | ESP-IDF |
 
-    * Hardware connection is not correct: run `idf.py -p PORT monitor`, and reboot your board to see if there are any output logs.
-    * The baud rate for downloading is too high: lower your baud rate in the `menuconfig` menu, and try again.
+The ESP32-H2 provides the processing and peripheral interfaces required by the project. The BME280 communicates over I²C, while the e-paper display uses SPI.
 
-## Technical support and feedback
+### Hardware Interfaces
 
-Please use the following feedback channels:
+**I²C — BME280**
 
-* For technical queries, go to the [esp32.com](https://esp32.com/) forum
-* For a feature request or bug report, create a [GitHub issue](https://github.com/espressif/esp-idf/issues)
+- SDA: GPIO11
+- SCL: GPIO10
+- Bus frequency: 100 kHz
 
-We will get back to you as soon as possible.
+**SPI — E-paper display**
+
+- SCLK: GPIO4
+- MOSI: GPIO5
+- CS: GPIO14
+- D/C: GPIO13
+- RESET: GPIO12
+- BUSY: GPIO23
+
+Additional GPIO assignments include:
+
+- Status LED: GPIO13 (shared with the display D/C assignment as applicable to the hardware configuration).
+- Button: GPIO0
+- Auxiliary input: GPIO12
+- Auxiliary output: GPIO14
+
+*Note: Pin assignments and peripheral sharing will be verified and finalized in the hardware documentation.*
+
+## Software Architecture
+
+The firmware is organized into separate modules to keep hardware interfaces, sensor acquisition, calculations, and display rendering independent where practical.
+
+The architecture is intended to make individual components easier to understand, test, maintain, and potentially reuse.
+
+Key areas include:
+
+- Sensor acquisition and environmental measurements.
+- Temperature conversion and unit handling.
+- Atmospheric pressure conversion.
+- Dew point calculation.
+- E-paper initialization and refresh management.
+- Bitmap font and custom glyph rendering.
+- Main application control and diagnostics.
+
+The display implementation includes custom graphics and bitmap fonts rather than relying exclusively on a conventional text-rendering library.
+
+## Display
+
+REM uses a 2.9-inch, 296 × 128-pixel, black/white/red e-paper display.
+
+The display driver handles initialization, SPI communication, framebuffer management, and refresh operations.
+
+Custom rendering routines support:
+
+- Bitmap fonts.
+- Custom-sized graphical glyphs.
+- Multiple display colors.
+- Pixel-level drawing.
+- Text and graphic positioning.
+
+The display is designed around readability and efficient use of the available resolution.
+
+[Insert photograph of completed display]
+
+## Environmental Measurements
+
+The BME280 provides the primary environmental measurements:
+
+- **Temperature:** Ambient temperature.
+- **Relative humidity:** Percentage of relative humidity.
+- **Atmospheric pressure:** Barometric pressure.
+- **Dew point:** Calculated from temperature and relative humidity.
+
+Pressure and temperature values can be converted into commonly used engineering units.
+
+Dew point is calculated in firmware rather than requiring an additional sensor.
+
+## Development Environment
+
+REM is developed using:
+
+- ESP-IDF 6.0.2
+- Embedded C
+- CMake-based ESP-IDF build system
+- ESP32-H2 toolchain
+
+The project uses the native ESP-IDF framework rather than Arduino abstractions.
+
+## Building and Flashing
+
+[To be completed]
+
+This section will include:
+
+- ESP-IDF installation and configuration.
+- Required components and dependencies.
+- Project configuration.
+- Build commands.
+- Flashing instructions.
+- Serial monitor configuration.
+
+## Testing
+
+Hardware-independent functionality is being separated from peripheral-dependent code to facilitate unit testing.
+
+Planned test coverage includes:
+
+- Environmental calculations.
+- Temperature and pressure conversions.
+- Dew point calculations.
+- Data validation and boundary conditions.
+- Other hardware-independent utility functions.
+
+[Update this section with actual test coverage and execution instructions before release.]
+
+## Project Scope
+
+REM is intended to operate as a standalone environmental monitor.
+
+The initial release focuses on local sensing, processing, and display functionality. Wireless communication, remote monitoring, and integration with external home-automation systems are outside the scope of the initial release.
+
+The hardware and firmware architecture leave room for future experimentation without making those features dependencies of the core application.
+
+## License
+
+This project is released under the MIT License.
+
+See [LICENSE](LICENSE) for details.
+
+You are free to use, modify, distribute, and incorporate this software into other projects, subject to the terms of the license.
+
+## Acknowledgments
+
+- Espressif Systems for ESP-IDF and the ESP32-H2 platform.
+- Bosch Sensortec for the BME280 sensor and associated documentation.
+- WeAct Studio for the e-paper display hardware.
