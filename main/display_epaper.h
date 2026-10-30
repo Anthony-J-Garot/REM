@@ -1,7 +1,7 @@
 #pragma once
 
 #include "esp_err.h"
-#include "font.h" // Include font definitions
+#include "glyph.h" // Include font definitions
 
 #define EPAPER_WIDTH  296
 #define EPAPER_HEIGHT 128

@@ -265,7 +265,7 @@ void epaper_draw_string(int pixel_x, int pixel_y, const char *text, const epaper
 // }}}
 
 // {{{ epaper_draw_glyph()
-// A glyph may be useful for unicode images.
+// A glyph may be useful for unicode images or icons.
 void epaper_draw_glyph(int pixel_x, int pixel_y, const epaper_glyph_t *glyph, epaper_color_t color)
 {
 	if (!glyph || !glyph->table) { return; }

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "display_epaper.h"
-#include "font.h"
+#include "glyph.h"
 
 void display_formatter_draw(float temp_f, float pressure_inhg, float humidity, float dew_pt_h)
 {

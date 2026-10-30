@@ -10,7 +10,7 @@
 #include "display_epaper.h"
 #include "sensor_bme280.h"
 #include "sensor_utils.h"
-#include "font.h"
+#include "glyph.h"
 #include "display_formatter.h"
 
 static const char *TAG = "main";
