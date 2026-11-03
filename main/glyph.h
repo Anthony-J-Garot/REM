@@ -24,3 +24,8 @@ extern const epaper_glyph_t thermometer_mercury_32x32;
 extern const epaper_glyph_t thermometer_empty_32x32;
 extern const epaper_glyph_t thermometer_filled_32x32;
 
+extern const epaper_glyph_t waterdrop_empty_32x32;
+extern const epaper_glyph_t waterdrop_filled_32x32;
+
+extern const epaper_glyph_t dial_32x32;
+

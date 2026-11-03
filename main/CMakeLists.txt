@@ -15,9 +15,12 @@ idf_component_register(
 		#"fonts/font_8x8.c"
 		#"fonts/font_8x16.c"
 
-		# Layout 4 splits glyphs into icons and fonts
+		# Layout 4 
+		# This layout splits glyphs into icons and fonts.
         "fonts/font_20x32.c"
 		"icons/thermometer.c"
+		"icons/waterdrop.c"
+		"icons/dial.c"
     INCLUDE_DIRS "."
     PRIV_REQUIRES
         esp_driver_i2c
