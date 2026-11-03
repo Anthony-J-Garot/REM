@@ -24,14 +24,14 @@ void display_formatter_draw(float temp_f, float pressure_inhg, float humidity, f
     // Draw components with appropriate fonts and X offsets
     const int LEFT_MARGIN = 10;
 
-    epaper_draw_string(LEFT_MARGIN, 10, header_str, &font_8x8, EPAPER_COLOR_RED);
+    display_draw_string(LEFT_MARGIN, 10, header_str, &font_8x8, EPAPER_COLOR_RED);
 
     // Temperature shows in a large 20x32 font
-    epaper_draw_string(LEFT_MARGIN, 30, temperature_str, &font_20x32, EPAPER_COLOR_BLACK);
+    display_draw_string(LEFT_MARGIN, 30, temperature_str, &font_20x32, EPAPER_COLOR_BLACK);
 
     // Push humidity, pressure, and dew point down below the 32px height footprint
-    epaper_draw_string(LEFT_MARGIN, 70, humidity_str, &font_8x8, EPAPER_COLOR_BLACK);
-    epaper_draw_string(LEFT_MARGIN, 90, pressure_str, &font_8x8, EPAPER_COLOR_BLACK);
-    epaper_draw_string(LEFT_MARGIN, 110, dew_point_str, &font_8x8, EPAPER_COLOR_BLACK);
+    display_draw_string(LEFT_MARGIN, 70, humidity_str, &font_8x8, EPAPER_COLOR_BLACK);
+    display_draw_string(LEFT_MARGIN, 90, pressure_str, &font_8x8, EPAPER_COLOR_BLACK);
+    display_draw_string(LEFT_MARGIN, 110, dew_point_str, &font_8x8, EPAPER_COLOR_BLACK);
 }
 

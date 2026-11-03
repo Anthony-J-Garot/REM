@@ -23,12 +23,10 @@ void epaper_wait_until_idle(void);
 
 // Framebuffer management
 void epaper_clear_framebuffers(epaper_color_t background);
-void epaper_draw_pixel(int pixel_x, int pixel_y, epaper_color_t color);
 
-// Updated string drawing function supporting any font struct
-void epaper_draw_string(int pixel_x, int pixel_y, const char *text, const epaper_font_t *font, epaper_color_t color);
-void epaper_draw_box(int pixel_x, int pixel_y, int width, int height, epaper_color_t color, bool filled);
-void epaper_draw_glyph(int pixel_x, int pixel_y, const epaper_glyph_t *glyph, epaper_color_t color);
+void display_draw_string(int pixel_x, int pixel_y, const char *text, const epaper_font_t *font, epaper_color_t color);
+void display_draw_box(int pixel_x, int pixel_y, int width, int height, epaper_color_t color, bool filled);
+void display_draw_icon(int pixel_x, int pixel_y, const epaper_glyph_t *glyph, epaper_color_t color);
 
 // Refresh routine to push buffers to the panel
 void epaper_display_refresh(void);

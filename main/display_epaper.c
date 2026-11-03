@@ -7,7 +7,7 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 
-static const char *TAG = "epaper";
+static const char *TAG = "EPAPER";
 
 #define EPIN_SCLK	4
 #define EPIN_MOSI	5
@@ -202,14 +202,16 @@ void epaper_clear_framebuffers(epaper_color_t background)
 }
 // }}}
 
-// {{{ epaper_draw_pixel()
-void epaper_draw_pixel(int pixel_x, int pixel_y, epaper_color_t color)
+// {{{ draw_pixel()
+// This draws the individual pixels. While this can be called directly, it's used
+// primarily to draw glyphs (font characters and icons) and shapes.
+static void draw_pixel(int pixel_x, int pixel_y, epaper_color_t color)
 {
-	// Check bounds for landscape orientation (296 x 128)
+	// Check bounds for landscape orientation, e.g., (296 x 128)
 	if (pixel_x < 0 || pixel_x >= EPAPER_WIDTH || pixel_y < 0 || pixel_y >= EPAPER_HEIGHT) { return; }
 
 	// Transpose coordinates: map landscape (x, y) to the panel's native portrait/scanned memory layout
-	// For many WeAct 2.9" panels, native RAM expects Y as the byte column and X as the bit/row stride.
+	// For many WeAct 2.9\" panels, native RAM expects Y as the byte column and X as the bit/row stride.
 	int rotated_x = pixel_y;
 	int rotated_y = EPAPER_WIDTH - 1 - pixel_x;
 
@@ -231,59 +233,80 @@ void epaper_draw_pixel(int pixel_x, int pixel_y, epaper_color_t color)
 }
 // }}}
 
-// {{{ epaper_draw_string()
-void epaper_draw_string(int pixel_x, int pixel_y, const char *text, const epaper_font_t *font, epaper_color_t color)
+// {{{ draw_bitmap()
+static void draw_bitmap(
+    int pixel_x,
+    int pixel_y,
+    const uint8_t *data,
+    int width,
+    int height,
+    epaper_color_t color)
 {
-	if (!font || !font->table) { return; }
+    if (!data) { return; }
 
-	int bytes_per_row = (font->width + 7) / 8;
+    int bytes_per_row = (width + 7) / 8;
 
-	while (*text) {
-		char chr = *text++;
-		int font_index = chr - font->start_char;
-		
-		if (font_index < 0 || font_index > (font->end_char - font->start_char)) {
-			font_index = 0; // Fallback for out-of-bounds characters
-		}
+    for (int row = 0; row < height; row++) {
+        for (int column = 0; column < width; column++) {
+            int byte_index = column / 8;
+            int bit_index = 7 - (column % 8);
 
-		// Calculate pointer to the specific character glyph bytes
-		const uint8_t *glyph = font->table + ((ptrdiff_t)font_index * font->height * bytes_per_row);
-
-		for (int i = 0; i < font->height; i++) {
-			for (int j = 0; j < font->width; j++) {
-				int byte_index = j / 8;
-				int bit_index = 7 - (j % 8);
-				
-				if (glyph[(i * bytes_per_row) + byte_index] & (1 << bit_index)) {
-					epaper_draw_pixel(pixel_x + j, pixel_y + i, color);
-				}
-			}
-		}
-		pixel_x += font->width; // Advance character width dynamically
-	}
+            if (data[(row * bytes_per_row) + byte_index] & (1 << bit_index)) {
+                draw_pixel(pixel_x + column, pixel_y + row, color);
+            }
+        }
+    }
 }
 // }}}
 
-// {{{ epaper_draw_glyph()
-// A glyph may be useful for unicode images or icons.
-void epaper_draw_glyph(int pixel_x, int pixel_y, const epaper_glyph_t *glyph, epaper_color_t color)
+// {{{ display_draw_string()
+// Puts text onto the display using the requested font.
+void display_draw_string(int pixel_x, int pixel_y, const char *text, const epaper_font_t *font, epaper_color_t color)
 {
-	if (!glyph || !glyph->table) { return; }
+    if (!font || !font->table) { return; }
 
-	int bytes_per_row = (glyph->width + 7) / 8;
+    int bytes_per_row = (font->width + 7) / 8;
 
-	const uint8_t *data = glyph->table;
+    while (*text) {
+        char chr = *text++;
+        int font_index = chr - font->start_char;
+        
+        if (font_index < 0 || font_index > (font->end_char - font->start_char)) {
+            font_index = 0; // Fallback for out-of-bounds characters
+        }
 
-	for (int i = 0; i < glyph->height; i++) {
-		for (int j = 0; j < glyph->width; j++) {
-			int byte_index = j / 8;
-			int bit_index = 7 - (j % 8);
-			
-			if (data[(i * bytes_per_row) + byte_index] & (1 << bit_index)) {
-				epaper_draw_pixel(pixel_x + j, pixel_y + i, color);
-			}
-		}
-	}
+        // Calculate pointer to the specific character glyph bytes
+        const uint8_t *glyph_data = font->table + ((ptrdiff_t)font_index * font->height * bytes_per_row);
+
+        // Render the character using the common bitmap renderer
+        draw_bitmap(
+            pixel_x,
+            pixel_y,
+            glyph_data,
+            font->width,
+            font->height,
+            color
+        );
+
+        pixel_x += font->width; // Advance character width dynamically
+    }
+}
+// }}}
+
+// {{{ display_draw_icon()
+// Currently used only to draw icons.
+void display_draw_icon(int pixel_x, int pixel_y, const epaper_glyph_t *glyph, epaper_color_t color)
+{
+    if (!glyph || !glyph->table) { return; }
+
+    draw_bitmap(
+        pixel_x,
+        pixel_y,
+        glyph->table,
+        glyph->width,
+        glyph->height,
+        color
+    );
 }
 // }}}
 
@@ -293,7 +316,7 @@ void epaper_draw_box(int pixel_x, int pixel_y, int width, int height, epaper_col
 	for (int py = pixel_y; py < (pixel_y + height); py++) {
 		for (int px = pixel_x; px < (pixel_x + width); px++) {
 			if (filled || px == pixel_x || px == (pixel_x + width - 1) || py == pixel_y || py == (pixel_y + height - 1)) {
-				epaper_draw_pixel(px, py, color);
+				draw_pixel(px, py, color);
 			}
 		}
 	}
@@ -365,18 +388,22 @@ void epaper_display_refresh(void)
 // }}}
 
 // {{{ epaper_export_bw_framebuffer_uart()
+// This dumps the black & white frame buffer to the JTAG/USB port as hexadecimal text.
+// The results can be used by a companion python script to visualize the display as an
+// image without actually rendering on the display. This gets around the 300 second
+// manufacturer refresh minimum.
 void epaper_export_bw_framebuffer_uart(void)
 {
     // Print recognizable header with format, dimensions, and row-order convention
     printf("FRAMEBUFFER 296 128 XOR8 ROW_MAJOR_TOP_DOWN\n");
 
-    for (int y = 0; y < EPAPER_HEIGHT; y++) {
+    for (int output_row = 0; output_row < EPAPER_HEIGHT; output_row++) {
         uint8_t row_bytes[37];
         memset(row_bytes, 0, sizeof(row_bytes));
 
         for (int output_column = 0; output_column < EPAPER_WIDTH; output_column++) {
-            // Reverse engineer the coordinate mapping used in epaper_draw_pixel()
-            int buffer_x = y;
+            // Reverse engineer the coordinate mapping used in draw_pixel()
+            int buffer_x = output_row;
             int buffer_y = EPAPER_WIDTH - 1 - output_column;
 
             int buffer_byte_index = (buffer_x / 8) + (buffer_y * (EPAPER_HEIGHT / 8));
@@ -411,6 +438,7 @@ void epaper_export_bw_framebuffer_uart(void)
 // }}}
 
 // {{{ epaper_export_red_framebuffer_uart()
+// See the note for epaper_export_bw_framebuffer_uart() for details.
 void epaper_export_red_framebuffer_uart(void)
 {
     // Print recognizable header for the red plane
@@ -421,7 +449,7 @@ void epaper_export_red_framebuffer_uart(void)
         memset(row_bytes, 0, sizeof(row_bytes));
 
         for (int output_column = 0; output_column < EPAPER_WIDTH; output_column++) {
-            // Reverse engineer the coordinate mapping used in epaper_draw_pixel()
+            // Reverse engineer the coordinate mapping used in draw_pixel()
             int buffer_x = output_row;
             int buffer_y = EPAPER_WIDTH - 1 - output_column;
 
