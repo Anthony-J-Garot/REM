@@ -16,7 +16,3 @@ void epaper_clear_framebuffers(epaper_color_t background);
 // Refresh routine to push buffers to the panel
 void epaper_display_refresh(void);
 
-// Framebuffer export APIs for PC inspection over UART
-void epaper_export_bw_framebuffer_uart(void);
-void epaper_export_red_framebuffer_uart(void);
-

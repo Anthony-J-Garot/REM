@@ -1,7 +1,7 @@
 #include "display_draw.h"
 #include "esp_log.h"
 
-static const char *TAG = "DRAW";
+//static const char *TAG = "DRAW";
 
 extern uint8_t bw_buffer[EPAPER_BUFFER_SIZE];
 extern uint8_t red_buffer[EPAPER_BUFFER_SIZE];
