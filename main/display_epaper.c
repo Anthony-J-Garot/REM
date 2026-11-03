@@ -240,21 +240,21 @@ void epaper_draw_string(int pixel_x, int pixel_y, const char *text, const epaper
 
 	while (*text) {
 		char chr = *text++;
-		int font_idx = chr - font->start_char;
+		int font_index = chr - font->start_char;
 		
-		if (font_idx < 0 || font_idx > (font->end_char - font->start_char)) {
-			font_idx = 0; // Fallback for out-of-bounds characters
+		if (font_index < 0 || font_index > (font->end_char - font->start_char)) {
+			font_index = 0; // Fallback for out-of-bounds characters
 		}
 
 		// Calculate pointer to the specific character glyph bytes
-		const uint8_t *glyph = font->table + ((ptrdiff_t)font_idx * font->height * bytes_per_row);
+		const uint8_t *glyph = font->table + ((ptrdiff_t)font_index * font->height * bytes_per_row);
 
 		for (int i = 0; i < font->height; i++) {
 			for (int j = 0; j < font->width; j++) {
-				int byte_idx = j / 8;
-				int bit_idx = 7 - (j % 8);
+				int byte_index = j / 8;
+				int bit_index = 7 - (j % 8);
 				
-				if (glyph[(i * bytes_per_row) + byte_idx] & (1 << bit_idx)) {
+				if (glyph[(i * bytes_per_row) + byte_index] & (1 << bit_index)) {
 					epaper_draw_pixel(pixel_x + j, pixel_y + i, color);
 				}
 			}
@@ -276,10 +276,10 @@ void epaper_draw_glyph(int pixel_x, int pixel_y, const epaper_glyph_t *glyph, ep
 
 	for (int i = 0; i < glyph->height; i++) {
 		for (int j = 0; j < glyph->width; j++) {
-			int byte_idx = j / 8;
-			int bit_idx = 7 - (j % 8);
+			int byte_index = j / 8;
+			int bit_index = 7 - (j % 8);
 			
-			if (data[(i * bytes_per_row) + byte_idx] & (1 << bit_idx)) {
+			if (data[(i * bytes_per_row) + byte_index] & (1 << bit_index)) {
 				epaper_draw_pixel(pixel_x + j, pixel_y + i, color);
 			}
 		}
@@ -374,32 +374,32 @@ void epaper_export_bw_framebuffer_uart(void)
         uint8_t row_bytes[37];
         memset(row_bytes, 0, sizeof(row_bytes));
 
-        for (int x = 0; x < EPAPER_WIDTH; x++) {
+        for (int output_column = 0; output_column < EPAPER_WIDTH; output_column++) {
             // Reverse engineer the coordinate mapping used in epaper_draw_pixel()
-            int rotated_x = y;
-            int rotated_y = EPAPER_WIDTH - 1 - x;
+            int buffer_x = y;
+            int buffer_y = EPAPER_WIDTH - 1 - output_column;
 
-            int addr = (rotated_x / 8) + (rotated_y * (EPAPER_HEIGHT / 8));
-            int bit_idx = 7 - (rotated_x % 8);
+            int buffer_byte_index = (buffer_x / 8) + (buffer_y * (EPAPER_HEIGHT / 8));
+            int buffer_bit_index = 7 - (buffer_x % 8);
 
             // bw_buffer: 0 = black, 1 = white
-            if (addr >= 0 && addr < EPAPER_BUFFER_SIZE) {
-                if (bw_buffer[addr] & (1 << bit_idx)) {
-                    row_bytes[x / 8] |= (1 << (7 - (x % 8)));
+            if (buffer_byte_index >= 0 && buffer_byte_index < EPAPER_BUFFER_SIZE) {
+                if (bw_buffer[buffer_byte_index] & (1 << buffer_bit_index)) {
+                    row_bytes[output_column / 8] |= (1 << (7 - (output_column % 8)));
                 }
             }
         }
 
         // Calculate 8-bit XOR checksum over the 37 decoded bytes
         uint8_t checksum = 0;
-        for (int i = 0; i < 37; i++) {
-            checksum ^= row_bytes[i];
+        for (int byte_index = 0; byte_index < 37; byte_index++) {
+            checksum ^= row_bytes[byte_index];
         }
 
         // Output format: CC:HHHHHHHH... (74 hex characters for 37 bytes)
         printf("%02X:", checksum);
-        for (int i = 0; i < 37; i++) {
-            printf("%02X", row_bytes[i]);
+        for (int byte_index = 0; byte_index < 37; byte_index++) {
+            printf("%02X", row_bytes[byte_index]);
         }
         printf("\n");
     }
@@ -416,36 +416,36 @@ void epaper_export_red_framebuffer_uart(void)
     // Print recognizable header for the red plane
     printf("FRAMEBUFFER_RED 296 128 XOR8 ROW_MAJOR_TOP_DOWN\n");
 
-    for (int y = 0; y < EPAPER_HEIGHT; y++) {
+    for (int output_row = 0; output_row < EPAPER_HEIGHT; output_row++) {
         uint8_t row_bytes[37];
         memset(row_bytes, 0, sizeof(row_bytes));
 
-        for (int x = 0; x < EPAPER_WIDTH; x++) {
+        for (int output_column = 0; output_column < EPAPER_WIDTH; output_column++) {
             // Reverse engineer the coordinate mapping used in epaper_draw_pixel()
-            int rotated_x = y;
-            int rotated_y = EPAPER_WIDTH - 1 - x;
+            int buffer_x = output_row;
+            int buffer_y = EPAPER_WIDTH - 1 - output_column;
 
-            int addr = (rotated_x / 8) + (rotated_y * (EPAPER_HEIGHT / 8));
-            int bit_idx = 7 - (rotated_x % 8);
+            int buffer_byte_index = (buffer_x / 8) + (buffer_y * (EPAPER_HEIGHT / 8));
+            int buffer_bit_index = 7 - (buffer_x % 8);
 
             // red_buffer: 0 = red, 1 = white or black
-            if (addr >= 0 && addr < EPAPER_BUFFER_SIZE) {
-                if (red_buffer[addr] & (1 << bit_idx)) {
-                    row_bytes[x / 8] |= (1 << (7 - (x % 8)));
+            if (buffer_byte_index >= 0 && buffer_byte_index < EPAPER_BUFFER_SIZE) {
+                if (red_buffer[buffer_byte_index] & (1 << buffer_bit_index)) {
+                    row_bytes[output_column / 8] |= (1 << (7 - (output_column % 8)));
                 }
             }
         }
 
         // Calculate 8-bit XOR checksum over the 37 decoded bytes
         uint8_t checksum = 0;
-        for (int i = 0; i < 37; i++) {
-            checksum ^= row_bytes[i];
+        for (int byte_index = 0; byte_index < 37; byte_index++) {
+            checksum ^= row_bytes[byte_index];
         }
 
         // Output format: CC:HHHHHHHH...
         printf("%02X:", checksum);
-        for (int i = 0; i < 37; i++) {
-            printf("%02X", row_bytes[i]);
+        for (int byte_index = 0; byte_index < 37; byte_index++) {
+            printf("%02X", row_bytes[byte_index]);
         }
         printf("\n");
     }
