@@ -16,7 +16,7 @@
 static const char *TAG = "main";
 
 // Dumps a visual display
-//#define ENABLE_EPAPER_UART_EXPORT 1
+#define ENABLE_EPAPER_UART_EXPORT 1
 
 /*
  * The manufacturer recommends 180 seconds minimum between display refreshes.

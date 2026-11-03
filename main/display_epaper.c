@@ -1,4 +1,5 @@
 #include "display_epaper.h"
+
 #include <string.h>
 #include <stddef.h>
 #include "freertos/FreeRTOS.h"
@@ -26,8 +27,8 @@ static const char *TAG = "EPAPER";
 static spi_device_handle_t spi_handle = NULL;
 
 // Dual framebuffers for Black/White and Red planes
-static uint8_t bw_buffer[EPAPER_BUFFER_SIZE];
-static uint8_t red_buffer[EPAPER_BUFFER_SIZE];
+uint8_t bw_buffer[EPAPER_BUFFER_SIZE];
+uint8_t red_buffer[EPAPER_BUFFER_SIZE];
 
 // {{{ epaper_send_command()
 static esp_err_t epaper_send_command(uint8_t cmd)
@@ -310,8 +311,10 @@ void display_draw_icon(int pixel_x, int pixel_y, const epaper_glyph_t *glyph, ep
 }
 // }}}
 
-// {{{ epaper_draw_box()
-void epaper_draw_box(int pixel_x, int pixel_y, int width, int height, epaper_color_t color, bool filled)
+// {{{ display_draw_box()
+// This function was used initially to solidity the drawing routines.
+// Once that was figured out for this display, this function was no longer used.
+void display_draw_box(int pixel_x, int pixel_y, int width, int height, epaper_color_t color, bool filled)
 {
 	for (int py = pixel_y; py < (pixel_y + height); py++) {
 		for (int px = pixel_x; px < (pixel_x + width); px++) {
@@ -324,6 +327,7 @@ void epaper_draw_box(int pixel_x, int pixel_y, int width, int height, epaper_col
 // }}}
 
 // {{{ epaper_display_refresh()
+// The refresh for this display requires many steps. It takes about 19 seconds.
 void epaper_display_refresh(void)
 {
 	const uint8_t driver_output[] = {

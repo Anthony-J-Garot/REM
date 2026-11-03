@@ -7,6 +7,7 @@ idf_component_register(
     SRCS 
 		"sensor_bme280.c"		# device
         "display_epaper.c"		# device
+        "display_draw.c"
         "main.c"
         "i2c_helpers.c"
         "sensor_utils.c"
