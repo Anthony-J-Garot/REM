@@ -42,6 +42,7 @@ fi
 #   menuconfig
 #   fullclean
 #   monitor --output-file esp32_log.txt
+#   monitor --no-reset
 if [[ $# -gt 0 ]]; then
     idf.py -p "$REM_PORT" "$@"
     exit 0
