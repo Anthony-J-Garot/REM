@@ -4,12 +4,13 @@
 #include "freertos/task.h"
 #include "i2c_helpers.h"
 
-static const char *TAG = "bme280";
+static const char *TAG = "BME280";
 
 // Global handle for the I2C device used in callback functions
-i2c_master_dev_handle_t bme280_dev_handle = NULL;
+static i2c_master_dev_handle_t bme280_dev_handle = NULL;
 static struct bme280_dev bme;
 
+// {{{ configure_sensor_device()
 static esp_err_t configure_sensor_device(i2c_master_bus_handle_t bus_handle) {
 
 	// Register BME280 device on the bus (using address 0x76 confirmed earlier)
@@ -20,7 +21,7 @@ static esp_err_t configure_sensor_device(i2c_master_bus_handle_t bus_handle) {
 	};
 	ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &dev_cfg, &bme280_dev_handle));
 
-	// Allow the sensor time to complete its power-on startup ---
+	// Allow the sensor time to complete its power-on startup
 	vTaskDelay(pdMS_TO_TICKS(200));
 
 	// Initialize Bosch BME280 Struct Configuration
@@ -40,7 +41,9 @@ static esp_err_t configure_sensor_device(i2c_master_bus_handle_t bus_handle) {
 	ESP_LOGI(TAG, "BME280 initialized successfully with official driver.");
 	return ESP_OK;
 }
+// }}}
 
+// {{{ configure_sensor_settings()
 static esp_err_t configure_sensor_settings(void) {
 
 	// Configure Sensor Settings using Bosch's official selection macros
@@ -67,7 +70,9 @@ static esp_err_t configure_sensor_settings(void) {
 
 	return ESP_OK;
 }
+// }}}
 
+// {{{ verify_sensor_registers()
 // Read back configuration registers using bme280_i2c_read()
 static esp_err_t verify_sensor_registers(void) {
 
@@ -107,7 +112,9 @@ static esp_err_t verify_sensor_registers(void) {
 
 	return ESP_OK;
 }
+// }}}
 
+// {{{ sensor_bme280_init()
 // Main Clean Initialization Orchestrator
 esp_err_t sensor_bme280_init(i2c_master_bus_handle_t bus_handle) {
 	ESP_ERROR_CHECK(configure_sensor_device(bus_handle));
@@ -115,15 +122,19 @@ esp_err_t sensor_bme280_init(i2c_master_bus_handle_t bus_handle) {
 	ESP_ERROR_CHECK(verify_sensor_registers());
 	return ESP_OK;
 }
+// }}}
 
-int8_t sensor_bme280_get_data(struct bme280_data *comp_data) {
-	int8_t rslt = bme280_get_sensor_data(BME280_ALL, comp_data, &bme);
+// {{{ sensor_bme280_get_data()
+int8_t sensor_bme280_get_data(struct bme280_data *sensor_data) {
+	int8_t rslt = bme280_get_sensor_data(BME280_ALL, sensor_data, &bme);
 	if (rslt != BME280_OK) {
 		ESP_LOGE(TAG, "Failed to stream sensor data: %d", rslt);
 	}
 	return rslt;
 }
+// }}}
 
+// {{{ bme280_i2c_read()
 int8_t bme280_i2c_read(
 	uint8_t reg_addr,
 	uint8_t *reg_data,
@@ -154,8 +165,10 @@ int8_t bme280_i2c_read(
 
 	return BME280_OK;
 }
+// }}}
 
-// --- Bosch API Callback: I2C Write ---
+// {{{ bme280_i2c_write()
+// Bosch API Callback: I2C Write
 int8_t bme280_i2c_write(
 	uint8_t reg_addr,
 	const uint8_t *reg_data,
@@ -190,10 +203,13 @@ int8_t bme280_i2c_write(
 
 	return BME280_OK;
 }
+// }}}
 
-// --- Bosch API Callback: Delay ---
+// {{{ bme280_delay_us()
+// Bosch API Callback: Delay
 void bme280_delay_us(uint32_t period, void *intf_ptr) {
 	(void)intf_ptr;
 	esp_rom_delay_us(period);
 }
+// }}}
 

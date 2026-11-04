@@ -5,8 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-
-static const char *TAG = "CONSOLE";
+static const char *TAG = "UART";
 
 // {{{ console_parse_line()
 /**

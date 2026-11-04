@@ -34,9 +34,7 @@ typedef enum {
     CMD_REFRESH_OVERRIDE
 } epaper_cmd_t;
 
-/**
- * @brief FreeRTOS task function for interactive console input.
- */
+// FreeRTOS task function for interactive console input.
 extern void uart_task(void *pvParameters);
 
 extern bool console_parse_line(const char *line);
