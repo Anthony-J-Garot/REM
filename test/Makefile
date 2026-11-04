@@ -5,7 +5,7 @@ CFLAGS += -DTESTING -DCONFIG_IDF_TARGET=\"esp32h2\"
 # Output directory for test binaries
 BIN_DIR = bin
 
-INC_DIRS = -I. -Iunity -Imocks -I../main -I$(CJSON_DIR)
+INC_DIRS = -I. -Iunity -Imocks -I../main
 
 UNITY_SRC = unity/unity.c
 
@@ -25,7 +25,7 @@ $(BIN_DIR):
 
 # 4. General rule to build each individual test binary into bin/
 # Uses an order-only prerequisite | $(BIN_DIR) so the directory is created before compiling
-$(BIN_DIR)/test_%: test_%.c ../main/%.c $(UNITY_SRC) $(CJSON_SRC) | $(BIN_DIR)
+$(BIN_DIR)/test_%: test_%.c ../main/%.c $(UNITY_SRC) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(INC_DIRS) $^ -o $@ -lm
 
 # 5. Target to run ALL tests sequentially from the bin/ directory
