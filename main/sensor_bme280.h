@@ -13,7 +13,7 @@
 esp_err_t sensor_bme280_init(i2c_master_bus_handle_t bus_handle);
 
 // Public function to grab sensor data cleanly
-int8_t sensor_bme280_get_data(struct bme280_data *comp_data);
+int8_t sensor_bme280_get_data(struct bme280_data *sensor_data);
 
 extern int8_t bme280_i2c_read(
 	uint8_t reg_addr,
