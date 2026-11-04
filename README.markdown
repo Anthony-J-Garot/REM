@@ -1,14 +1,16 @@
 # REM — Room Environmental Monitor
 
-A standalone, low-power environmental monitoring project built around the ESP32-H2, Bosch BME280 sensor, and a 2.9-inch three-color e-paper display.
+A standalone environmental monitoring project built around the ESP32-H2, Bosch BME280 sensor, and a 2.9-inch, three-color e-paper display.
 
-REM measures and displays temperature, relative humidity, atmospheric pressure, and calculated dew point. It is designed as a self-contained embedded device, with an emphasis on reliable operation, efficient hardware utilization, and clear presentation of environmental data.
+REM measures and displays ambient temperature, relative humidity, and atmospheric pressure. It also calculates additional environmental metrics, including dew point, which can be displayed through alternative layouts.
+
+The project is designed as an inexpensive DIY embedded device, with an emphasis on reliable operation, efficient hardware utilization, and clear presentation of environmental data.
 
 ## Project Overview
 
 REM is an embedded engineering project developed using native ESP-IDF and C. It combines environmental sensing, sensor data processing, custom display rendering, and low-level hardware integration into a standalone device.
 
-The project explores many important facets of an embedded engineering project, including:
+The project incorporates several aspects of embedded systems development, including:
 
 - Microcontroller programming using native ESP-IDF.
 - Modular embedded C architecture.
@@ -17,10 +19,10 @@ The project explores many important facets of an embedded engineering project, i
 - Custom bitmap fonts and graphics rendering.
 - Temperature, humidity, pressure, and dew point calculations.
 - Hardware initialization, error handling, and diagnostic output.
-- Unit testing of hardware-independent functionality.
+- Hardware-independent functionality suitable for unit testing.
 - Hardware documentation and reproducible build configuration.
 
-The goal is not simply to display sensor readings, but to develop a complete, understandable, and reproducible embedded system.
+The goal is to develop a complete, understandable, and reproducible embedded system rather than simply display sensor readings.
 
 ## Hardware
 
@@ -38,6 +40,19 @@ The ESP32-H2 provides the processing and peripheral interfaces required by the p
 
 ### Hardware Interfaces
 
+**WeAct e-paper display**
+
+| Display pin | ESP32-H2 GPIO | Physical access | Purpose |
+|---|---|---|---|
+| SCL / SCLK | GPIO4 | Header | SPI clock |
+| SDA / DIN MOSI | GPIO5 | Header | SPI data |
+| CS | GPIO14 | Header | Chip select |
+| D/C | GPIO13 | Header | Data/command selection |
+| RES / RST | GPIO12 | Header | Display reset |
+| BUSY | GPIO23 | Header | Display busy status |
+| VCC | 3V3 | Header | 3.3 V power |
+| GND | GND | Header | Common ground |
+
 **I²C — BME280**
 
 - SDA: GPIO11
@@ -53,14 +68,12 @@ The ESP32-H2 provides the processing and peripheral interfaces required by the p
 - RESET: GPIO12
 - BUSY: GPIO23
 
-Additional GPIO assignments include:
+Additional hardware details:
 
-- Status LED: GPIO13 (shared with the display D/C assignment as applicable to the hardware configuration).
-- Button: GPIO0
-- Auxiliary input: GPIO12
-- Auxiliary output: GPIO14
-
-*Note: Pin assignments and peripheral sharing will be verified and finalized in the hardware documentation.*
+- Onboard status LED: GPIO13, shared with the display D/C signal.
+- Button: GPIO0.
+- USB Serial/JTAG provides the diagnostic interface; UART0 is not used for diagnostics.
+- GPIO12 and GPIO14 are assigned to the display and are not available as independent auxiliary connections.
 
 ## Software Architecture
 
@@ -75,10 +88,10 @@ Key areas include:
 - Atmospheric pressure conversion.
 - Dew point calculation.
 - E-paper initialization and refresh management.
-- Bitmap font and custom glyph rendering.
+- Bitmap font and custom icon rendering.
 - Main application control and diagnostics.
 
-The display implementation includes custom graphics and bitmap fonts rather than relying exclusively on a conventional text-rendering library.
+The display implementation uses custom graphics and bitmap fonts rather than relying exclusively on a conventional text-rendering library.
 
 ## Display
 
@@ -88,15 +101,17 @@ The display driver handles initialization, SPI communication, framebuffer manage
 
 Custom rendering routines support:
 
-- Bitmap fonts.
-- Custom-sized graphical glyphs.
-- Multiple display colors.
+- Bitmap fonts in multiple sizes.
+- Custom graphical icons.
+- Black and red foreground graphics.
 - Pixel-level drawing.
 - Text and graphic positioning.
 
-The display is designed around readability and efficient use of the available resolution.
+The display layout is designed around readability and efficient use of the available resolution. Alternative fonts, icons, units, and layouts can be incorporated without changing the underlying sensor acquisition.
 
-[Insert photograph of completed display]
+![REM Display Layout](./documentation/epaper_snapshot_rgb.png)
+
+*Current REM display layout.*
 
 ## Environmental Measurements
 
@@ -105,11 +120,14 @@ The BME280 provides the primary environmental measurements:
 - **Temperature:** Ambient temperature.
 - **Relative humidity:** Percentage of relative humidity.
 - **Atmospheric pressure:** Barometric pressure.
+
+Additional environmental metrics are calculated in firmware:
+
 - **Dew point:** Calculated from temperature and relative humidity.
 
-Pressure and temperature values can be converted into commonly used engineering units.
+Temperature and pressure values can be converted into commonly used engineering units.
 
-Dew point is calculated in firmware rather than requiring an additional sensor.
+The current display layout presents temperature, relative humidity, and atmospheric pressure. Other calculated values and unit formats can be incorporated through alternative display layouts. For example, dew point, Celsius temperature, or pressure in hectopascals (hPa) can be displayed without requiring changes to the sensor hardware.
 
 ## Development Environment
 
@@ -122,40 +140,32 @@ REM is developed using:
 
 The project uses the native ESP-IDF framework rather than Arduino abstractions.
 
-## Building and Flashing
-
-[To be completed]
-
-This section will include:
-
-- ESP-IDF installation and configuration.
-- Required components and dependencies.
-- Project configuration.
-- Build commands.
-- Flashing instructions.
-- Serial monitor configuration.
-
 ## Testing
 
-Hardware-independent functionality is being separated from peripheral-dependent code to facilitate unit testing.
+Hardware-independent functionality is separated from peripheral-dependent code where practical to facilitate unit testing.
 
-Planned test coverage includes:
+Testing and verification can be performed independently of the physical sensor and display hardware when the functionality does not require those peripherals.
 
-- Environmental calculations.
-- Temperature and pressure conversions.
-- Dew point calculations.
-- Data validation and boundary conditions.
-- Other hardware-independent utility functions.
+Test coverage and execution instructions will be documented as the test suite develops.
 
-[Update this section with actual test coverage and execution instructions before release.]
-
-## Project Scope
+## Project Scope and Limitations
 
 REM is intended to operate as a standalone environmental monitor.
 
-The initial release focuses on local sensing, processing, and display functionality. Wireless communication, remote monitoring, and integration with external home-automation systems are outside the scope of the initial release.
+The initial implementation focuses exclusively on local sensing, processing, and display functionality.
 
-The hardware and firmware architecture leave room for future experimentation without making those features dependencies of the core application.
+The following are outside the scope of the project:
+
+- **Wireless communication:** No radio transmission or reception. The ESP32-H2 wireless capabilities are not used.
+- **Remote monitoring:** No Wi-Fi, Bluetooth, or other wireless connectivity.
+- **Data storage:** No persistent storage of measurements or historical readings in nonvolatile memory.
+- **Power management:** No deep-sleep implementation or other power-optimization strategy.
+- **Battery operation:** The device is designed for continuous operation from a 5 V power supply, not battery power.
+- **Measurement accuracy:** REM is not a laboratory-grade measurement instrument. Sensor readings are intended for general environmental monitoring, not precision measurement.
+
+REM is a DIY project provided without guarantees of accuracy, reliability, or suitability for any particular application. It is provided without warranty or ongoing support.
+
+The hardware and firmware architecture leave room for future experimentation, but additional functionality is not a dependency of the core application.
 
 ## License
 
