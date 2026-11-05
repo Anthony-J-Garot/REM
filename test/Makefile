@@ -23,8 +23,11 @@ all: test
 $(BIN_DIR):
 	mkdir -p $@
 
-# 4. General rule to build each individual test binary into bin/
-# Uses an order-only prerequisite | $(BIN_DIR) so the directory is created before compiling
+# Update the rule for test_display_epaper to include mocks/esp_mocks.c
+$(BIN_DIR)/test_display_epaper: test_display_epaper.c ../main/display_epaper.c mocks/esp_mocks.c $(UNITY_SRC) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $(INC_DIRS) $^ -o $@ -lm
+
+# General rule for other tests without hardware mocks
 $(BIN_DIR)/test_%: test_%.c ../main/%.c $(UNITY_SRC) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(INC_DIRS) $^ -o $@ -lm
 
