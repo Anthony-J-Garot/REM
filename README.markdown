@@ -6,6 +6,9 @@ REM measures and displays ambient temperature, relative humidity, and atmospheri
 
 The project is designed as an inexpensive DIY embedded device, with an emphasis on reliable operation, efficient hardware utilization, and clear presentation of environmental data.
 
+![Working System](./documentation/working_system_small.jpg)
+*Photo of working system [Full size image is here](./documentation/working_system.jpg).*
+
 ## Project Overview
 
 REM is an embedded engineering project developed using native ESP-IDF and C. It combines environmental sensing, sensor data processing, custom display rendering, and low-level hardware integration into a standalone device.
@@ -26,15 +29,14 @@ The goal is to develop a complete, understandable, and reproducible embedded sys
 
 ## Hardware
 
-The current implementation uses the following components:
+The current implementation uses the following components. Supplier and total purchase price (including tax and shipping) are listed for each component.
 
-| Component | Description |
-|---|---|
-| Microcontroller | ESP32-H2 Super Mini |
-| Environmental sensor | Bosch BME280 |
-| Display | 2.9-inch, 296 × 128, three-color e-paper |
-| Display controller | SSD1680 |
-| Development framework | ESP-IDF |
+| Component | Description | Supplier | Price |
+|---|---|---|---:|
+| Microcontroller | ESP32-H2 Super Mini development board | AliExpress | $5.49 |
+| Environmental sensor | Bosch BME280 temperature, humidity, and pressure sensor module | AliExpress | $3.94 |
+| Display | WeAct 2.9-inch, 296 × 128, three-color e-paper module (SSD1680 controller) | AliExpress | $12.12 |
+| **Total** | | | **$21.55** |
 
 The ESP32-H2 provides the processing and peripheral interfaces required by the project. The BME280 communicates over I²C, while the e-paper display uses SPI.
 
@@ -44,8 +46,8 @@ The ESP32-H2 provides the processing and peripheral interfaces required by the p
 
 | Display pin | ESP32-H2 GPIO | Physical access | Purpose |
 |---|---|---|---|
-| SCL / SCLK | GPIO4 | Header | SPI clock |
-| SDA / DIN MOSI | GPIO5 | Header | SPI data |
+| SCL (SCLK) | GPIO4 | Header | SPI clock |
+| SDA (DIN MOSI) | GPIO5 | Header | SPI data |
 | CS | GPIO14 | Header | Chip select |
 | D/C | GPIO13 | Header | Data/command selection |
 | RES / RST | GPIO12 | Header | Display reset |
@@ -67,6 +69,7 @@ The ESP32-H2 provides the processing and peripheral interfaces required by the p
 - D/C: GPIO13
 - RESET: GPIO12
 - BUSY: GPIO23
+- Bus frequency: 4 MHz
 
 Additional hardware details:
 
@@ -159,8 +162,7 @@ The initial implementation focuses exclusively on local sensing, processing, and
 
 The following are outside the scope of the project:
 
-- **Wireless communication:** No radio transmission or reception. The ESP32-H2 wireless capabilities are not used.
-- **Remote monitoring:** No Wi-Fi, Bluetooth, or other wireless connectivity.
+- **Wireless communication:** No wireless transmission or reception. The ESP32-H2's Bluetooth and 802.15.4 radio capabilities are not used.
 - **Data storage:** No persistent storage of measurements or historical readings in nonvolatile memory.
 - **Power management:** No deep-sleep implementation or other power-optimization strategy.
 - **Battery operation:** The device is designed for continuous operation from a 5 V power supply, not battery power.
@@ -172,11 +174,7 @@ The hardware and firmware architecture leave room for future experimentation, bu
 
 ## License
 
-This project is released under the MIT License.
-
-See [LICENSE](LICENSE) for details.
-
-You are free to use, modify, distribute, and incorporate this software into other projects, subject to the terms of the license.
+This project is released under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
