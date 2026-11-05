@@ -142,11 +142,14 @@ The project uses the native ESP-IDF framework rather than Arduino abstractions.
 
 ## Testing
 
-Hardware-independent functionality is separated from peripheral-dependent code where practical to facilitate unit testing.
+Hardware-independent functionality is separated from peripheral-dependent code where practical, facilitating host-side unit testing. All host-side Unity unit tests reside in the `test/` directory. The test suite includes both *happy-path* and *edge-case* tests.
 
-Testing and verification can be performed independently of the physical sensor and display hardware when the functionality does not require those peripherals.
+To run the unit tests:
 
-Test coverage and execution instructions will be documented as the test suite develops.
+```bash
+cd REM/test
+make
+```
 
 ## Project Scope and Limitations
 
