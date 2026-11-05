@@ -14,6 +14,7 @@ grep -E 'CONFIG_ESP_CONSOLE_(USB_SERIAL_JTAG|UART_DEFAULT|UART_NUM)' sdkconfig
 #pragma once
 
 #include <stddef.h>
+#include <stdbool.h>
 #include "esp_log.h"
 
 #ifdef ENABLE_DEBUG_CONSOLE

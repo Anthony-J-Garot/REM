@@ -4,6 +4,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <string.h>
 
 static const char *TAG = "UART";
 
@@ -95,6 +96,7 @@ bool console_process_char(int keystroke, char *buffer, size_t max_len, size_t *i
 // {{{ uart_task()
 // This is natively non-blocking, so I'll use getchar() and tack onto a string.
 void uart_task(void *pvParameters) {
+	(void)pvParameters;
 	char buffer[64];
 	size_t idx = 0;
 

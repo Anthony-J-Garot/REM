@@ -52,3 +52,13 @@ esp_err_t spi_device_polling_transmit(spi_device_handle_t handle, spi_transactio
     return ESP_OK;
 }
 
+unsigned int uxTaskGetStackHighWaterMark(TaskHandle_t xTask) {
+    (void)xTask;
+    return 1024; // Mock headroom value well above warning thresholds
+}
+
+char *pcTaskGetName(TaskHandle_t xTask) {
+    (void)xTask;
+    return "mock_task";
+}
+
