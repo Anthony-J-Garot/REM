@@ -1,6 +1,7 @@
 #include "display_export.h"
 #include "display_draw.h"
 #include <stdio.h>
+#include <string.h>
 #include "esp_log.h"
 
 //static const char *TAG = "EXPORT";

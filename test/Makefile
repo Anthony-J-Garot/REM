@@ -9,6 +9,8 @@ INC_DIRS = -I. -Iunity -Imocks -I../main
 
 UNITY_SRC = unity/unity.c
 
+ESP_MOCKS_SRC = mocks/esp_mocks.c
+
 # 1. Automatically find all test_*.c files in the directory
 TEST_SRCS = $(wildcard test_*.c)
 
@@ -19,19 +21,23 @@ TEST_BINARIES = $(patsubst %.c,$(BIN_DIR)/%,$(filter-out test_display_formatter.
 
 all: test
 
-# 3. Create the output directory if it doesn't exist
+# Create the output directory if it doesn't exist
 $(BIN_DIR):
 	mkdir -p $@
 
-# Update the rule for test_display_epaper to include mocks/esp_mocks.c
-$(BIN_DIR)/test_display_epaper: test_display_epaper.c ../main/display_epaper.c mocks/esp_mocks.c $(UNITY_SRC) | $(BIN_DIR)
+# Target rule for test_display_epaper to include mocks/esp_mocks.c
+$(BIN_DIR)/test_display_epaper: test_display_epaper.c ../main/display_epaper.c $(ESP_MOCKS_SRC) $(UNITY_SRC) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $(INC_DIRS) $^ -o $@ -lm
+
+# Target rule to compile test_display_export with all required source dependencies
+$(BIN_DIR)/test_display_export: test_display_export.c ../main/display_export.c ../main/display_epaper.c $(ESP_MOCKS_SRC) $(UNITY_SRC) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(INC_DIRS) $^ -o $@ -lm
 
 # General rule for other tests without hardware mocks
 $(BIN_DIR)/test_%: test_%.c ../main/%.c $(UNITY_SRC) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(INC_DIRS) $^ -o $@ -lm
 
-# 5. Target to run ALL tests sequentially from the bin/ directory
+# Target to run ALL tests sequentially from the bin/ directory
 test: $(TEST_BINARIES)
 	@echo "--- Running All Unit Tests ---"
 	@for test in $(TEST_BINARIES); do \
