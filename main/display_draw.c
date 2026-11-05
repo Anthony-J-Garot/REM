@@ -1,6 +1,8 @@
 #include "display_draw.h"
-#include "esp_log.h"
+#include <stddef.h>
 
+// If logging is wanted here
+//#include "esp_log.h"
 //static const char *TAG = "DRAW";
 
 extern uint8_t bw_buffer[EPAPER_BUFFER_SIZE];

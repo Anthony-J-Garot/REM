@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "esp_err.h"
+#include <stdbool.h>
 #include "glyph.h" // Include font definitions
 
 #define EPAPER_WIDTH  296
